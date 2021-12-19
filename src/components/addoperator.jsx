@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { Component } from "react";
-//import Joi from "joi-browser";
+import Joi from "joi-browser";
 
 class AddOperator extends React.Component {
   state = {
@@ -22,21 +22,25 @@ class AddOperator extends React.Component {
     errors: {},
     errMsg: "",
   };
+  
    // define schema to validate input field values
-  /*schema = {
-    operatorId: Joi.string().required(),
+  schema = {
+    departmentId:Joi.number().required(),
+    firstName:Joi.string().min(3).max(20).required(),
+    lastName:Joi.string().min(3).max(20).required(),
     email: Joi.string()
       .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
       .required(),
-    departmentId: Joi.string().required(),
+    
     mobile: Joi.number()
       .integer()
-      .min(9999999900)
+      .min(6000000000)
       .max(9999999999)
       .required(),
     city: Joi.string().required(),
-    firstName:Joi.string().min(3).max(20).required(),
-    lastName:Joi.string().min(3).max(20).required(),
+    operatorId:Joi.number().required(),
+    departmentName: Joi.string().required(),
+
   };
   // Step 3: Validate user input with schema
   validate = () => {
@@ -53,7 +57,7 @@ class AddOperator extends React.Component {
         errors[item.path[0]] = item.message;
       }
     return Object.keys(errors).length === 0 ? null : errors;
-  };*/
+  };
   handleChange = (event) => {
     
     // copy state operator object to local variable operator
@@ -69,9 +73,9 @@ class AddOperator extends React.Component {
     event.preventDefault();
     console.log("handleSubmit");
     // Send post request to rest api
-  /*  this.setState({ errors: this.validate() });
+    this.setState({ errors: this.validate() });
     console.log(this.state.errors);
-    if (this.state.errors) return;*/
+    if (this.state.errors) return;
     const operator=
     {
         
@@ -95,20 +99,20 @@ class AddOperator extends React.Component {
         );
         this.props.history.push("/operator");
       })
-      .catch((err) => 
-        console.log(err));
-      };
-        /*console.log(err.response.data.message);
+      .catch((err) => {
+        console.log(err);
+      
+       console.log(err.response.data.message);
         this.setState({ errMsg: err.response.data.message });
-      };
-  };*/
+      });
+  };
 
   render() {
     // Object Destructuring
     const { operatorId, email,departmentId, city, mobile,firstName,lastName,departmentName} = this.state.operator;
     const { errors, errMsg } = this.state;
     return (
-      <div>
+     <div>
         <form
           onSubmit={this.handleSubmit}
           className="w-50 mx-auto shadow p-3 mb-5 bg-body rounded mt-3"
@@ -131,6 +135,7 @@ class AddOperator extends React.Component {
               name="operatorId"
               onChange={this.handleChange}
             />
+            {errors && <small>{errors.operatorId}</small>}
             
           </div>
             <div className="mb-3">
@@ -146,6 +151,7 @@ class AddOperator extends React.Component {
               name="firstName"
               onChange={this.handleChange}
             />
+            {errors && <small>{errors.firstName}</small>}
           </div>
           <div className="mb-3">
             <label htmlFor="lastName" className="form-label">
@@ -160,6 +166,7 @@ class AddOperator extends React.Component {
               name="lastName"
               onChange={this.handleChange}
             />
+            {errors && <small>{errors.lastName}</small>}
            
           </div>
         
@@ -176,6 +183,7 @@ class AddOperator extends React.Component {
               name="email"
               onChange={this.handleChange}
             />
+            {errors && <small>{errors.email}</small>}
            
           </div>
 
@@ -192,6 +200,7 @@ class AddOperator extends React.Component {
               name="mobile"
               onChange={this.handleChange}
             />
+            {errors && <small>{errors.mobile}</small>}
             </div>
             
           <div className="mb-3">
@@ -207,6 +216,7 @@ class AddOperator extends React.Component {
               name="city"
               onChange={this.handleChange}
             />
+            {errors && <small>{errors.city}</small>}
             
           </div>
           <div className="mb-3">
@@ -221,6 +231,7 @@ class AddOperator extends React.Component {
               name="departmentId"
               onChange={this.handleChange}
             />
+             {errors && <small>{errors.departmentId}</small>}
            
           </div>
          
@@ -238,6 +249,7 @@ class AddOperator extends React.Component {
               name="departmentName"
               onChange={this.handleChange}
             />
+            {errors && <small>{errors.departmentName}</small>}
            
           </div>
          

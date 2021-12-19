@@ -37,7 +37,7 @@ class Call extends React.Component {
   render() {
     return (
       <div className="w-75 mx-auto">
-        
+         
 
         <table className="table table-condensed table-sm table-light table-hover table-striped text-center border-warning">
           <thead>
@@ -49,6 +49,7 @@ class Call extends React.Component {
               <th>customerId</th>
               <th>issueId</th>
               <th>operatorId</th>
+              <th>Actions</th>
 
             </tr>
           </thead>

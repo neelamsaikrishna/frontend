@@ -1,59 +1,73 @@
-import React from 'react';
-import axios from 'axios';
+import axios from "axios";
+import React, { Component } from "react";
 import { NavLink } from 'react-router-dom';
-import {Link} from'react-router-dom';
-// import { Joi } from 'joi-browser';
+import { Link } from 'react-router-dom';
+import { TextField, Box, MenuItem, Paper, Button } from "@mui/material";
+import Joi from "joi-browser";
 
 class RegCustomer extends React.Component {
     state = {
         customer: {
             customerId: "",
+            city: "",
+            email: "",
             firstName: "",
             lastName: "",
-            email:"",
-            city:"",
-            mobile:"",
-            
+            mobile: "",
+
         },
+
+
         errors: {},
-        errorMsg: "",
+        errMsg: "",
     };
 
-    // schema = {
-    //     // username: Joi.string()
-    //     //     .pattern(new RegExp('^[a-zA-Z0-9]{3,}$'))
-    //     //     .required(),
-    //     mobileNumber: Joi.string()
-    //         .pattern(new RegExp("^[7-9][0-9]{9}$"))
-    //         .required(),
-    //     email: Joi.string()
-    //         .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-    //         .pattern(new RegExp("^[a-zA-Z]{3,}@[a-zA-Z]{2,}.[a-zA-Z]{2,}&"))
-    //         .required(),
-    //     accountNo: Joi.number()
-    //         .integer()
-    //         .required(),
-    //     pan: Joi.string()
-    //         .pattern(new RegExp("^[A-Z]{5}[0-9]{4}[A-Z]{1}$"))
-    //         .required(),
-    // };
+    // define schema to validate input field values
+    schema = {
 
-    //validate method
-    // validate = () => {
-    //     const errors = {};
-    //     const result = Joi.validate(this.state.customer, this.schema, {
-    //         abortEarly: false
-    //     });
+        firstName: Joi.string().min(3).max(20).required(),
+        lastName: Joi.string().min(3).max(20).required(),
+        email: Joi.string()
+            .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+            .required(),
 
-    //     console.log(result);
+        mobile: Joi.number()
+            .integer()
+            .min(6000000000)
+            .max(9999999999)
+            .required(),
+        city: Joi.string().required(),
+        customerId: Joi.number().required(),
 
-    //     if (result.error != null)
-    //         for (let item of result.error.details) {
-    //             errors[item.path[0]] = item.message
-    //         }
-    //     return Object.keys(errors).length === 0 ? null : errors;
-    // };
 
+    };
+    // Step 3: Validate user input with schema
+    validate = () => {
+        const errors = {};
+        const result = Joi.validate(this.state.customer, this.schema, {
+            abortEarly: false,
+        });
+        console.log(result);
+        // setting error messages to error properties
+        // ex: errors[username] = "username is required";
+        // ex: errors[departmentId] = "departmentId is required";
+        if (result.error != null)
+            for (let item of result.error.details) {
+                errors[item.path[0]] = item.message;
+            }
+        return Object.keys(errors).length === 0 ? null : errors;
+    };
+    handleChange = (event) => {
+
+        // copy state customer object to local variable operator
+        const customer = { ...this.state.customer };
+
+        // update local customer object with values entered by user
+        customer[event.target.name] = event.target.value;
+
+        // update state object using setState method
+        this.setState({ customer: customer });
+    };
     updateInput = (event) => {
         this.setState({
             customer: {
@@ -61,219 +75,167 @@ class RegCustomer extends React.Component {
                 [event.target.name]: event.target.value,
             },
         });
-     
+
     };
 
     handleSubmit = (event) => {
         event.preventDefault();
-        console.log("Handle Submit");
+        console.log("handleSubmit");
+        // Send post request to rest api
+        this.setState({ errors: this.validate() });
+        console.log(this.state.errors);
+        if (this.state.errors) return;
 
-        const dataUrl = `http://localhost:9090/api/regCustomer`;
         axios
-            .post(dataUrl, this.state.customer)
-            .then((response) => {
-                console.log(response.data);
+            .post("http://localhost:9090/api/regCustomer", this.state.customer)
+            .then((res) => {
+                console.log(res.data);
                 alert(
-                    "Added Account " +
-                        this.state.customer.firstName +
-                        " successfully !!!"
+                    "Added customer " + this.state.customer.customerId + " successfully!"
                 );
                 this.props.history.push("/customer");
             })
-            .catch((error) => {
-                this.setState({
-                    ...this.state,
-                    errorMsg: error.response.data.message,
-                });
+            .catch((err) => {
+                console.log(err);
+
+                console.log(err.response.data.message);
+                this.setState({ errMsg: err.response.data.message });
             });
     };
 
     render() {
-        const { customer } = this.state;
-        const { errors, errorMsg } = this.state;
-        console.log(this.state.customer);
+        // Object Destructuring
+        const { customerId, email, city, mobile, firstName, lastName } = this.state.customer;
+        const { errors, errMsg } = this.state;
         return (
-            <section className="landing">
-                <div className="wrapper">
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-md-5 mx-auto">
-                                <div className="card mt-3">
-                                    <div className="card-header bg-light text-black text-center">
-                                        <h4 className="fw-bolder">
-                                            Register Customer
-                                        </h4>
-                                    </div>
-                                    {errorMsg && (
-                                        <div
-                                            className="alert alert-danger"
-                                            role="alert"
-                                        >
-                                            {errorMsg}
-                                        </div>
-                                    )}
-                                    <form
-                                        className="shadow p-3 mt-1 bg-light rounded text-center"
-                                        onSubmit={this.handleSubmit}
-                                    >
-                                        <div className="mb-2">
-                                            <label
-                                                htmlFor="customerId"
-                                                className="form-label fw-bold text-black"
-                                            >
-                                               customerId
-                                            </label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                // placeholder="Account_Number"
-                                                id="customerId"
-                                                name="customerId"
-                                                value={customer.customerId}
-                                                onChange={this.updateInput}
-                                            />
-                                            {errors && (
-                                                <small>{errors.customerId}</small>
-                                            )}
-                                        </div>
-                                        <div className="mb-2">
-                                            <label
-                                                htmlFor="firstName"
-                                                className="form-label fw-bold text-black"
-                                            >
-                                               firstName
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                // placeholder="balance"
-                                                id="firstName"
-                                                name="firstName"
-                                                value={customer.firstName}
-                                                onChange={this.updateInput}
-                                            />
-                                            {errors && (
-                                                <small>
-                                                    {errors.firstName}
-                                                </small>
-                                            )}
-                                        </div>
-                                        <div className="mb-2">
-                                            <label
-                                                htmlFor="lastName"
-                                                className="form-label fw-bold text-black"
-                                            >
-                                               lastName
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                // placeholder="account_name"
-                                                id="lastName"
-                                                name="lastName"
-                                                value={customer.lastName}
-                                                onChange={this.updateInput}
-                                            />
-                                            {errors && (
-                                                <small>{errors.lastName}</small>
-                                            )}
-                                            </div>
-                                            <div className="mb-2">
-                                            <label
-                                                htmlFor="email"
-                                                className="form-label fw-bold text-black"
-                                            >
-                                                Email
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                // placeholder="account_type"
-                                                id="email"
-                                                name="email"
-                                                value={customer.email}
-                                                onChange={this.updateInput}
-                                            />
-                                            {errors && (
-                                                <small>
-                                                    {errors.email}
-                                                </small>
-                                            )}
-                                        
-                                        </div>
-                                        <div className="mb-2">
-                                            <label
-                                                htmlFor="city"
-                                                className="form-label fw-bold text-black"
-                                            >
-                                                city
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                // placeholder="account_type"
-                                                id="city"
-                                                name="city"
-                                                value={customer.city}
-                                                onChange={this.updateInput}
-                                            />
-                                            {errors && (
-                                                <small>
-                                                    {errors.city}
-                                                </small>
-                                            )}
-                                        
-                                        </div>
-                                        <div className="mb-2">
-                                            <label
-                                                htmlFor="mobile"
-                                                className="form-label fw-bold text-black"
-                                            >
-                                                mobile
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                // placeholder="account_type"
-                                                id="mobile"
-                                                name="mobile"
-                                                value={customer.mobile}
-                                                onChange={this.updateInput}
-                                            />
-                                            {errors && (
-                                                <small>
-                                                    {errors.mobile}
-                                                </small>
-                                            )}
-                                        
-                                        </div>
-                                        <div className="d-grid gap-2 mt-2">
-                                            <button
-                                                type="submit"
-                                                className="btn btn-primary btn-md text-black fw-bold"
-                                            >
-                                                Submit
-                                            </button>
-                                            
-
-                                        </div>
-                                         
-                                            
-                                        <div className="pull-left">
-                                            <p>Already have an account?</p>
-                                            <Link to="/login">Sign in</Link>
-                                            </div>
-
-                                        
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+            <div>
+                <form
+                    onSubmit={this.handleSubmit}
+                    className="w-25 mx-auto shadow p-3 mb-5 bg-body rounded mt-3"
+                >
+                    <div className="card-header bg-secondary text-black text-center">
+                        <h4 className="fw-bolder">
+                            Register Customer
+                        </h4>
+                 
+                    
                     </div>
-                </div>
-            </section>
+                    <div className="mb-3">
+                        <label htmlFor="customerId" className="form-label">
+                            customerId
+                        </label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            placeholder="customerId"
+                            aria-describedby="emailHelp"
+                            value={customerId}
+                            name="customerId"
+                            onChange={this.handleChange}
+                        />
+                        {errors && <small>{errors.customerId}</small>}
+
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="firstName" className="form-label">
+                            FirstName
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="firstName"
+                            aria-describedby="emailHelp"
+                            value={firstName}
+                            name="firstName"
+                            onChange={this.handleChange}
+                        />
+                        {errors && <small>{errors.firstName}</small>}
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="lastName" className="form-label">
+                            LastName
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="lastName"
+                            aria-describedby="emailHelp"
+                            value={lastName}
+                            name="lastName"
+                            onChange={this.handleChange}
+                        />
+                        {errors && <small>{errors.lastName}</small>}
+
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="Email" className="form-label">
+                            Email address
+                        </label>
+                        <input
+                            type="email"
+                            className="form-control"
+                            placeholder="Email"
+                            aria-describedby="emailHelp"
+                            value={email}
+                            name="email"
+                            onChange={this.handleChange}
+                        />
+                        {errors && <small>{errors.email}</small>}
+
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="mobile" className="form-label">
+                            Contact No
+                        </label>
+                        <input
+                            type="tel"
+                            className="form-control"
+                            placeholder="mobile"
+                            aria-describedby="emailHelp"
+                            value={mobile}
+                            name="mobile"
+                            onChange={this.handleChange}
+                        />
+                        {errors && <small>{errors.mobile}</small>}
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="city" className="form-label">
+                            City
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="city"
+                            aria-describedby="emailHelp"
+                            value={city}
+                            name="city"
+                            onChange={this.handleChange}
+                        />
+                        {errors && <small>{errors.city}</small>}
+
+                    </div>
+
+                    <div className="d-grid gap-2 mt-3">
+                        <button type="submit" className="btn btn-primary">
+                            Register
+                        </button>
+                    </div>
+                  
+                    <div className="">
+                        <p>Already have an account?<Link to="/login">Sign in</Link></p>
+                        
+                    </div>
+                    
+                    
+                    
+                </form>
+              
+            </div>
         );
     }
 }
- 
+
 export default RegCustomer;

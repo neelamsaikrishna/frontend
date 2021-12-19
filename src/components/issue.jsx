@@ -4,45 +4,44 @@ import { Link } from "react-router-dom";
 
 class Issue extends React.Component {
   state = {
-    issue: [],
+    issues: [],
   };
+
 
   // class component life cycle methods
   componentDidMount() {
     console.log("componentDidMount");
     axios
-      .get("http://localhost:8181/api/getallIssues/call")
+      .get("http://localhost:9090/api/getallIssues/call")
       .then((res) => {
         console.log(res);
-        this.setState({ issue: res.data });
+        this.setState({ issues: res.data });
       })
       .catch((err) => console.log(err));
   }
-  componentDidUpdate() {
-    console.log("componentDidUpdate");
-  }
-  componentWillUnmount() {
-    console.log("componentWillUnmount");
-  }
 
-  handleDelete = (issueType) => {
-   
+  handleDelete = (issueId) => {
     axios
-      .delete(`http://localhost:8181/api/getallIssues/call${issueType}`)
+      .delete(`http://localhost:9090/api/closeCustomerIssue/${issueId}`)
       .then((res) => {
         console.log(res);
         // Update front end parallely
-        const issue = this.state.issue.filter((s) => s.issueType!= issueType);
-        this.setState({issue: issue});
-        alert(res.data.issueType+ " deleted succussfully!");
-        
+        const issues = this.state.issues.filter((s) => s.issueId != issueId);
+        this.setState({ issues: issues });
+        alert(res.data.issueId + " deleted succussfully!");
       })
       .catch((err) => console.log(err));
   };
   render() {
     return (
       <div className="w-75 mx-auto">
-        <button className="btn btn-info float-end">Add</button>
+        <Link
+          to="/issue/addissue"
+          className="btn btn-success mt-3 btn-md float-end mb-3"
+        >
+          Add Issue
+        </Link>
+
         <table className="table">
           <thead>
             <tr>
@@ -50,29 +49,25 @@ class Issue extends React.Component {
               <th>Description</th>
               <th>IssueStatus</th>
               <th>IssueType</th>
-             
+
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {this.state.issue.map((s) => (
+            {this.state.issues.map((s) => (
               <tr>
                 <td>{s.issueId}</td>
                 <td>{s.description}</td>
                 <td>{s.issueStatus}</td>
                 <td>{s.issueType}</td>
-               
-                <td>
-                <Link
-                    to={`/issue/update/${s.issueId}`}
-                    className="btn btn-primary"
-                  >
-                    Update
 
-                    </Link>
+                <td>
+                  <Link to={`/issue/updateissue`} className="btn btn-primary">
+                    Update 
+                  </Link>
                   <button
                     className="btn btn-danger"
-                    onClick={() => this.handleDelete(s.issueType)}
+                    onClick={() => this.handleDelete(s.issueId)}
                   >
                     Delete
                   </button>

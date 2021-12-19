@@ -46,16 +46,16 @@ const Nav = () => {
 
               </li>
               <li className="nav-item dropdown">
-                <NavLink
+                <a
                   className="nav-link dropdown-toggle"
-                  to="#"
+                  href="#"
                   id="navbarDropdown"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   User
-                </NavLink>
+                </a>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                 
                 <NavLink className="dropdown-item" to="/addoperator">

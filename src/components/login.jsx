@@ -67,7 +67,7 @@ class Login extends React.Component {
 
     // Redirect to products page on successfull login
     if (this.props.login) {
-      this.props.history.push("/customerdashboard");
+      this.props.history.push("/dashboard");
     }
   };
   render() {
@@ -128,23 +128,7 @@ class Login extends React.Component {
               required
             />
              {errors && <small>{errors.password}</small>}
-            <FormControl variant="filled" fullWidth>
-              <InputLabel id="demo-simple-select-filled-label">Role</InputLabel>
-              <Select
-                labelId="demo-simple-select-filled-label"
-                id="demo-simple-select-filled"
-                value={this.state.role}
-                name="role"
-                onChange={this.handleChange}
-                required
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value="customer">Customer</MenuItem>
-                <MenuItem value="operator">Operator</MenuItem>
-              </Select>
-            </FormControl>
+           
             <Button
               type="submit"
               variant="contained"
